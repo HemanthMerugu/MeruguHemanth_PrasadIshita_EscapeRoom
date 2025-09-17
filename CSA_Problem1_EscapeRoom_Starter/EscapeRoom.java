@@ -36,6 +36,9 @@ public class EscapeRoom
         // get user input and call game methods to play 
         play = false;
       }
+      }
+      }
+    
       */
 
   public static void main(String[] args) 
@@ -48,28 +51,56 @@ public class EscapeRoom
     GameGUI game = new GameGUI();
     game.createBoard();
 
-    // size of move
-    int m = 60; 
     // individual player moves
     int px = 0;
     int py = 0; 
     
     int score = 0;
 
-    Scanner in = new Scanner(System.in);
     String[] validCommands = { "right", "left", "up", "down", "r", "l", "u", "d",
     "jump", "jr", "jumpleft", "jl", "jumpup", "ju", "jumpdown", "jd",
     "pickup", "p", "quit", "q", "replay", "help", "?"};
   
     // set up game
-    boolean play = true;
-    while (play)
-    {
-      /* TODO: get all the commands working */
-	  /* Your code here */
-    
-      
+    // ...existing code...
+    try (Scanner in = new Scanner(System.in)) {
+      boolean play = true;
+      while (play)
+      {
+        System.out.print("Enter command: ");
+        String cmd = in.nextLine().toLowerCase();
+
+      boolean isValid = false;
+      for (String command : validCommands) {
+        if (cmd.equals(command)) {
+          isValid = true;
+          break;
+        }
+      }
+      if (!isValid) {
+        System.out.println("Invalid command. Type 'help' or '?' for a list of commands.");
+        continue;
+      }
+
+      if (cmd.equals("help") || cmd.equals("?")) {
+        System.out.println("Commands: right, left, up, down, jump, pickup, replay, quit, help");
+        continue;
+      }
+      if (cmd.equals("quit") || cmd.equals("q")) {
+        System.out.println("Quitting game.");
+        play = false;
+        continue;
+      }
+      if (cmd.equals("pickup") || cmd.equals("p")) {
+        score += game.pickUpPrize(px, py);
+        continue;
+      }
+      if (cmd.equals("springtrap")) {
+        score += game.springTrap(px, py);
+        
+      }
     }
+// ...existing code...
 
   
 
@@ -77,7 +108,9 @@ public class EscapeRoom
 
     System.out.println("score=" + score);
     System.out.println("steps=" + game.getSteps());
+    // Scanner is closed automatically by try-with-resources
   }
+}
 }
 
         

@@ -1,17 +1,14 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.Image;
 import java.awt.Point;
-
+import java.awt.Rectangle;
+import java.io.File;
+import java.util.Random;
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-
-import java.io.File;
-import javax.imageio.ImageIO;
-
-import java.util.Random;
 
 /**
  * A Game board on which to place and move players.
@@ -70,19 +67,19 @@ public class GameGUI extends JComponent
   {
     
     try {
-      bgImage = ImageIO.read(new File("grid.png"));      
+      bgImage = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/grid.png"));      
     } catch (Exception e) {
       System.err.println("Could not open file grid.png");
     }      
     try {
-      prizeImage = ImageIO.read(new File("coin.png"));      
+      prizeImage = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/coin.png"));      
     } catch (Exception e) {
       System.err.println("Could not open file coin.png");
     }
   
     // player image, student can customize this image by changing file on disk
     try {
-      player = ImageIO.read(new File("player.png"));      
+      player = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/player.png"));      
     } catch (Exception e) {
      System.err.println("Could not open file player.png");
     }
@@ -119,6 +116,30 @@ public class GameGUI extends JComponent
     walls = new Rectangle[totalWalls];
     createWalls();
   }
+// Add your existing imports and class definition here
+
+
+// ...existing code...
+
+/**
+ * Attempts to pick up a prize at the given (px, py) position.
+ * Returns prizeVal if successful, otherwise returns -prizeVal as penalty.
+ */
+public int pickUpPrize(int px, int py) {
+    if (prizes == null) return -prizeVal;
+    for (Rectangle p : prizes) {
+        if (p.getWidth() > 0 && p.contains(px, py)) {
+            System.out.println("YOU PICKED UP A PRIZE!");
+            p.setSize(0, 0); // Remove prize
+            repaint();
+            return prizeVal;
+        }
+    }
+    System.out.println("OOPS, NO PRIZE HERE");
+    return -prizeVal;
+}
+
+// ...existing code...
 
   /**
    * Increment/decrement the player location by the amount designated.
