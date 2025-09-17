@@ -54,7 +54,8 @@ public class EscapeRoom
     // individual player moves
     int px = 0;
     int py = 0; 
-    
+    // m is how far the robot moves on the screen when the movement buttons are pressed
+    int m = 60;    
     int score = 0;
 
     String[] validCommands = { "right", "left", "up", "down", "r", "l", "u", "d",
@@ -77,6 +78,7 @@ public class EscapeRoom
           break;
         }
       }
+      
       if (!isValid) {
         System.out.println("Invalid command. Type 'help' or '?' for a list of commands.");
         continue;
@@ -92,13 +94,30 @@ public class EscapeRoom
         continue;
       }
       if (cmd.equals("pickup") || cmd.equals("p")) {
-        score += game.pickUpPrize(px, py);
+        score += game.pickupPrize(); // Use the method that checks the player's current pixel location
         continue;
       }
       if (cmd.equals("springtrap")) {
         score += game.springTrap(px, py);
         
+      }    
+      // ...existing code...
+      if (cmd.equals("right") || cmd.equals("d")) {
+          score += game.movePlayer(m, 0); // move right by 60 pixels
+          continue;
       }
+      if (cmd.equals("left") || cmd.equals("a")) {
+          score += game.movePlayer(-m, 0); // move left by 60 pixels
+          continue;
+      }
+      if (cmd.equals("up") || cmd.equals("w")) {
+          score += game.movePlayer(0, -m); // move up by 60 pixels
+          continue;
+      }
+      if (cmd.equals("down") || cmd.equals("s")) {
+          score += game.movePlayer(0, m); // move down by 60 pixels
+      }
+// ...existing code...  
     }
 // ...existing code...
 
@@ -108,9 +127,8 @@ public class EscapeRoom
 
     System.out.println("score=" + score);
     System.out.println("steps=" + game.getSteps());
-    // Scanner is closed automatically by try-with-resources
+    //scanner is closed automatically by try-with-resources
   }
 }
 }
 
-        

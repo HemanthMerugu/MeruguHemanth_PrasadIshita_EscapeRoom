@@ -43,10 +43,11 @@ import java.util.Scanner;
         return input;
     }
     
+    private static final Scanner scanner = new Scanner(System.in);
+
     public static String getLine()
     {
-        Scanner s = new Scanner(System.in);
-        return s.nextLine();
+        return scanner.nextLine();
     }
 
 
