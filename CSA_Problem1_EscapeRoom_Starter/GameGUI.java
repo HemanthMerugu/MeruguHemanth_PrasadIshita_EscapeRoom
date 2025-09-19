@@ -119,8 +119,6 @@ public class GameGUI extends JComponent
 // Add your existing imports and class definition here
 
 
-// ...existing code...
-
 /**
  * Attempts to pick up a prize at the given (px, py) position.
  * Returns prizeVal if successful, otherwise returns -prizeVal as penalty.
@@ -139,9 +137,7 @@ public int pickUpPrize(int px, int py) {
     return -prizeVal;
 }
 
-// ...existing code...
-
-  /**
+/**
    * Increment/decrement the player location by the amount designated.
    * This method checks for bumping into walls and going off the grid,
    * both of which result in a penalty.
@@ -524,4 +520,10 @@ public int pickUpPrize(int px, int py) {
     return score;
   
   }
+
+  public void randomizeWallsAndTraps() {
+    createWalls();
+    createTraps();
+    repaint();
+}
 }

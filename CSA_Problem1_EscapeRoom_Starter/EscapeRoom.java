@@ -94,32 +94,55 @@ public class EscapeRoom
         continue;
       }
       if (cmd.equals("pickup") || cmd.equals("p")) {
-        score += game.pickupPrize(); // Use the method that checks the player's current pixel location
+        int pickupScore = game.pickupPrize();
+        score += pickupScore;
+        System.out.println("score=" + score);
+        System.out.println("steps=" + game.getSteps());
+        if (pickupScore > 0) {
+            // Only randomize if a prize was actually picked up
+            game.randomizeWallsAndTraps();
+            System.out.println("Walls and traps are randomized!");
+        }
         continue;
       }
       if (cmd.equals("springtrap")) {
         score += game.springTrap(px, py);
+        System.out.println("score=" + score);
+        System.out.println("steps=" + game.getSteps());
         
       }    
-      // ...existing code...
       if (cmd.equals("right") || cmd.equals("d")) {
           score += game.movePlayer(m, 0); // move right by 60 pixels
+          System.out.println("score=" + score);
+          System.out.println("steps=" + game.getSteps());
           continue;
       }
       if (cmd.equals("left") || cmd.equals("a")) {
           score += game.movePlayer(-m, 0); // move left by 60 pixels
+          System.out.println("score=" + score);
+          System.out.println("steps=" + game.getSteps());
           continue;
       }
       if (cmd.equals("up") || cmd.equals("w")) {
           score += game.movePlayer(0, -m); // move up by 60 pixels
+          System.out.println("score=" + score);
+          System.out.println("steps=" + game.getSteps());
           continue;
+          
       }
       if (cmd.equals("down") || cmd.equals("s")) {
           score += game.movePlayer(0, m); // move down by 60 pixels
+          System.out.println("score=" + score);
+          System.out.println("steps=" + game.getSteps());
       }
-// ...existing code...  
+      if (cmd.equals("replay")) {
+        score = 0;
+        game.replay();
+        System.out.println("score=" + score);
+        System.out.println("steps=" + game.getSteps());
+        System.out.println("Board reset! Play again.");
     }
-// ...existing code...
+    }
 
   
 
