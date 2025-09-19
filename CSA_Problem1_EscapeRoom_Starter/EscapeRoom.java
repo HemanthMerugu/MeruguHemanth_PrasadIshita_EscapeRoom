@@ -20,7 +20,7 @@ public class EscapeRoom
       // Allow game commands:
       //    right, left, up, down: if you try to go off grid or bump into wall, score decreases
       //    jump over 1 space: you cannot jump over walls
-      //    if you land on a trap, spring a trap to increase score: you must first check if there is a trap, if none exists, penalty
+      //    if you land on a trap, spring a traap to increase score: you must first check if there is a trap, if none exists, penalty
       //    pick up prize: score increases, if there is no prize, penalty
       //    help: display all possible commands
       //    end: reach the far right wall, score increase, game ends, if game ended without reaching far right wall, penalty
@@ -36,11 +36,9 @@ public class EscapeRoom
         // get user input and call game methods to play 
         play = false;
       }
-      }
-      }
-    
       */
 
+      
   public static void main(String[] args) 
   {      
     // welcome message
@@ -51,25 +49,28 @@ public class EscapeRoom
     GameGUI game = new GameGUI();
     game.createBoard();
 
+    // size of move
+    int m = 60; 
     // individual player moves
     int px = 0;
     int py = 0; 
-    // m is how far the robot moves on the screen when the movement buttons are pressed
-    int m = 60;    
+    
     int score = 0;
 
+    Scanner in = new Scanner(System.in);
     String[] validCommands = { "right", "left", "up", "down", "r", "l", "u", "d",
     "jump", "jr", "jumpleft", "jl", "jumpup", "ju", "jumpdown", "jd",
     "pickup", "p", "quit", "q", "replay", "help", "?"};
   
     // set up game
-    // ...existing code...
-    try (Scanner in = new Scanner(System.in)) {
-      boolean play = true;
-      while (play)
-      {
-        System.out.print("Enter command: ");
-        String cmd = in.nextLine().toLowerCase();
+    boolean play = true;
+    while (play)
+    {
+      /* TODO: get all the commands working */
+      /* Your code here */
+      
+      System.out.print("Enter your move: ");
+      String move = in.nextLine().toLowerCase();
 
       boolean isValid = false;
       for (String command : validCommands) {
@@ -143,15 +144,77 @@ public class EscapeRoom
         System.out.println("Board reset! Play again.");
     }
     }
+      if(move.equals("right") || move.equals("r")){
+          game.movePlayer(m,0);
+          score++;
 
-  
+      } else if(move.equals("left") || move.equals("l")){
+          game.movePlayer(-m,0);
+          score++;
+
+      } else if(move.equals("up") || move.equals("u")){
+          game.movePlayer(0,-m);
+          score++;
+
+      } else if(move.equals("down") || move.equals("d")){
+          game.movePlayer(0,m);
+          score++;
+
+      } else if(move.equals("jumpup") || move.equals("ju")){
+          game.movePlayer(0,-2*m);
+          score++;
+
+      } else if(move.equals("jumpdown") || move.equals("jd")){
+          game.movePlayer(0,2*m);
+          score++;
+
+      } else if(move.equals("jumpright") || move.equals("jr")){
+          game.movePlayer(2*m,0);
+          score++;
+
+
+
+      } else if(move.equals("jumpleft") || move.equals("jl")){
+          game.movePlayer(-2*m,0);
+          score++;
+
+      } else if(move.equals("pickup") || move.equals("p")){
+          System.out.println("Picking up prize");
+          score += game.pickupPrize();
+
+      } else if(move.equals("replay")){
+          System.out.println("Resetting the board. Your score: " + score + " Steps: " + game.getSteps());
+          game.replay();
+          score = 0;
+
+
+      } else if(move.equals("help") || move.equals("?")){
+          System.out.println("Try one of these: right/r, left/l, up/u, down/d, jump commands, pickup/p, replay, help/?");
+
+      } else if(move.equals("quit") || move.equals("q")){
+          System.out.println("Quitting the game");
+          play = false;
+
+
+      } else {
+          System.out.println("That is not a valid command!");
+          score -= 5;
+      }
+
+
+
+      if(game.isTrap(0,0)){
+          System.out.println("Trap!");
+          score += game.springTrap(0,0);
+      }
+    }
+
+
+
 
     score += game.endGame();
 
     System.out.println("score=" + score);
     System.out.println("steps=" + game.getSteps());
-    //scanner is closed automatically by try-with-resources
   }
 }
-}
-
