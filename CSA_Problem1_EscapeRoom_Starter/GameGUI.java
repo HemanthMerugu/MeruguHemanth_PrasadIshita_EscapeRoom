@@ -75,7 +75,15 @@ public class GameGUI extends JComponent
       prizeImage = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/coin.png"));      
     } catch (Exception e) {
       System.err.println("Could not open file coin.png");
+    } 
+
+    /* 
+    try {
+      prizeImage = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/rock.png"));      
+    } catch (Exception e) {
+      System.err.println("Could not open file rock.png");
     }
+  */
   
     // player image, student can customize this image by changing file on disk
     try {
