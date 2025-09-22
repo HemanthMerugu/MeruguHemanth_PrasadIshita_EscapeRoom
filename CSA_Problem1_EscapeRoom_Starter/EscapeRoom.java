@@ -60,7 +60,7 @@ public class EscapeRoom
 
     String[] validCommands = { "right", "left", "up", "down", "r", "l", "u", "d",
     "jump", "jr", "jumpleft", "jl", "jumpup", "ju", "jumpdown", "jd",
-    "pickup", "p", "quit", "q", "replay", "help", "?"};
+    "pickup", "p", "quit", "q", "replay", "help", "?", "unstuck", "us", "springtrap" };
   
     // set up game
     // ...existing code...
@@ -85,7 +85,13 @@ public class EscapeRoom
       }
 
       if (cmd.equals("help") || cmd.equals("?")) {
-        System.out.println("Commands: right, left, up, down, jump, pickup, replay, quit, help");
+        System.out.println("Commands: right, left, up, down, jump, pickup, replay, quit, help, stuck");
+        System.out.println("When done, reach the far right side of the board to end the game.");
+        continue;
+      }
+      if (cmd.equals("unstuck") || cmd.equals("us")) {
+        game.randomizeWallsAndTraps();
+        System.out.println("Walls and traps are randomized!");
         continue;
       }
       if (cmd.equals("quit") || cmd.equals("q")) {
@@ -166,7 +172,7 @@ public class EscapeRoom
         System.out.println("score=" + score);
         System.out.println("steps=" + game.getSteps());
         System.out.println("Board reset! Play again.");
-    }
+      }
     }
 
   
@@ -177,6 +183,6 @@ public class EscapeRoom
     System.out.println("steps=" + game.getSteps());
     //scanner is closed automatically by try-with-resources
   }
-}
+  }
 }
 
