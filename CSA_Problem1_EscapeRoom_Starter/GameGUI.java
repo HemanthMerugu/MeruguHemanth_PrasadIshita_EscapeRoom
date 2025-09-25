@@ -51,10 +51,11 @@ public class GameGUI extends JComponent
 
   // scores, sometimes awarded as (negative) penalties
   private int prizeVal = 10;
-  private int trapVal = 5;
+  private int trapVal = 1;
   private int endVal = 10;
   private int offGridVal = 5; // penalty only
   private int hitWallVal = 5;  // penalty only
+  private int trapPenalty = 1; // penalty for stepping on a trap
 
   // game frame
   private JFrame frame;
@@ -65,7 +66,6 @@ public class GameGUI extends JComponent
    */
   public GameGUI()
   {
-    
     try {
       bgImage = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/grid.png"));      
     } catch (Exception e) {
@@ -77,14 +77,6 @@ public class GameGUI extends JComponent
       System.err.println("Could not open file coin.png");
     } 
 
-    /* 
-    try {
-      prizeImage = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/rock.png"));      
-    } catch (Exception e) {
-      System.err.println("Could not open file rock.png");
-    }
-  */
-  
     // player image, student can customize this image by changing file on disk
     try {
       player = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/player.png"));      
@@ -124,8 +116,6 @@ public class GameGUI extends JComponent
     walls = new Rectangle[totalWalls];
     createWalls();
   }
-// Add your existing imports and class definition here
-
 
 /**
  * Attempts to pick up a prize at the given (px, py) position.
@@ -157,63 +147,73 @@ public int pickUpPrize(int px, int py) {
    * @param incry amount to move player in y direction
    * @return penalty score for hitting a wall or potentially going off the grid, 0 otherwise
    */
-  public int movePlayer(int incrx, int incry)
-  {
-      int newX = x + incrx;
-      int newY = y + incry;
-      
-      // increment regardless of whether player really moves
-      playerSteps++;
+ public int movePlayer(int incrx, int incry)
+{
+    int newX = x + incrx;
+    int newY = y + incry;
+    
+    // increment regardless of whether player really moves
+    playerSteps++;
 
-      // check if off grid horizontally and vertically
-      if ( (newX < 0 || newX > WIDTH-SPACE_SIZE) || (newY < 0 || newY > HEIGHT-SPACE_SIZE) )
+    // check if off grid horizontally and vertically
+    if ( (newX < 0 || newX > WIDTH-SPACE_SIZE) || (newY < 0 || newY > HEIGHT-SPACE_SIZE) )
+    {
+      System.out.println ("OFF THE GRID!");
+      return -offGridVal;
+    }
+
+    // determine if a wall is in the way
+    for (Rectangle r: walls)
+    {
+      // this rect. location
+      int startX =  (int)r.getX();
+      int endX  =  (int)r.getX() + (int)r.getWidth();
+      int startY =  (int)r.getY();
+      int endY = (int) r.getY() + (int)r.getHeight();
+
+      // (Note: the following if statements could be written as huge conditional but who wants to look at that!?)
+      // moving RIGHT, check to the right
+      if ((incrx > 0) && (x <= startX) && (startX <= newX) && (y >= startY) && (y <= endY))
       {
-        System.out.println ("OFF THE GRID!");
-        return -offGridVal;
+        System.out.println("A WALL IS IN THE WAY");
+        return -hitWallVal;
       }
-
-      // determine if a wall is in the way
-      for (Rectangle r: walls)
+      // moving LEFT, check to the left
+      else if ((incrx < 0) && (x >= startX) && (startX >= newX) && (y >= startY) && (y <= endY))
       {
-        // this rect. location
-        int startX =  (int)r.getX();
-        int endX  =  (int)r.getX() + (int)r.getWidth();
-        int startY =  (int)r.getY();
-        int endY = (int) r.getY() + (int)r.getHeight();
-
-        // (Note: the following if statements could be written as huge conditional but who wants to look at that!?)
-        // moving RIGHT, check to the right
-        if ((incrx > 0) && (x <= startX) && (startX <= newX) && (y >= startY) && (y <= endY))
-        {
-          System.out.println("A WALL IS IN THE WAY");
-          return -hitWallVal;
-        }
-        // moving LEFT, check to the left
-        else if ((incrx < 0) && (x >= startX) && (startX >= newX) && (y >= startY) && (y <= endY))
-        {
-          System.out.println("A WALL IS IN THE WAY");
-          return -hitWallVal;
-        }
-        // moving DOWN check below
-        else if ((incry > 0) && (y <= startY && startY <= newY && x >= startX && x <= endX))
-        {
-          System.out.println("A WALL IS IN THE WAY");
-          return -hitWallVal;
-        }
-        // moving UP check above
-        else if ((incry < 0) && (y >= startY) && (startY >= newY) && (x >= startX) && (x <= endX))
-        {
-          System.out.println("A WALL IS IN THE WAY");
-          return -hitWallVal;
-        }     
+        System.out.println("A WALL IS IN THE WAY");
+        return -hitWallVal;
       }
+      // moving DOWN check below
+      else if ((incry > 0) && (y <= startY && startY <= newY && x >= startX && x <= endX))
+      {
+        System.out.println("A WALL IS IN THE WAY");
+        return -hitWallVal;
+      }
+      // moving UP check above
+      else if ((incry < 0) && (y >= startY) && (startY >= newY) && (x >= startX && x <= endX))
+      {
+        System.out.println("A WALL IS IN THE WAY");
+        return -hitWallVal;
+      }     
+    }
 
-      // all is well, move player
-      x += incrx;
-      y += incry;
-      repaint();   
-      return 0;   
-  }
+    // all is well, move player
+    x += incrx;
+    y += incry;
+    playerLoc.setLocation(x, y);
+
+    // Check if player stepped on a trap
+    for (Rectangle t : traps) {
+      if (t.getWidth() > 0 && t.contains(playerLoc.getX(), playerLoc.getY())) {
+        System.out.println("YOU LANDED ON A TRAP!");
+        return -trapPenalty;
+      }
+    }
+
+    repaint();   
+    return 0;   
+}
 
   /**
    * Check the space adjacent to the player for a trap. The adjacent location is one space away from the player, 
@@ -229,7 +229,6 @@ public int pickUpPrize(int px, int py) {
   {
     double px = playerLoc.getX() + newx;
     double py = playerLoc.getY() + newy;
-
 
     for (Rectangle r: traps)
     {
@@ -377,6 +376,7 @@ public int pickUpPrize(int px, int py) {
     x = START_LOC_X;
     y = START_LOC_Y;
     playerSteps = 0;
+    randomizeWallsAndTraps();
     repaint();
     return win;
   }
@@ -408,11 +408,11 @@ public int pickUpPrize(int px, int py) {
     g.drawImage(bgImage, 0, 0, null);
 
     // add (invisible) traps
-    for (Rectangle t : traps)
-    {
-      g2.setPaint(Color.WHITE); 
-      g2.fill(t);
-    }
+    // for (Rectangle t : traps)
+    // {
+    //   g2.setPaint(Color.WHITE); 
+    //   g2.fill(t);
+    // }
 
     // add prizes
     for (Rectangle p : prizes)
@@ -533,5 +533,27 @@ public int pickUpPrize(int px, int py) {
     createWalls();
     createTraps();
     repaint();
+  }
+
+  /**
+   * Find the location of a trap on the board.
+   * @return positive score if a trap is found, negative penalty if no traps are found
+   */
+  public int findTrap()
+{
+  boolean trapFound = false;
+  for (Rectangle t : traps) {
+    if (t.getWidth() > 0) {
+      int trapX = (int)t.getX() / SPACE_SIZE;
+      int trapY = (int)t.getY() / SPACE_SIZE;
+      System.out.println("Trap detected at location: (" + trapX + ", " + trapY + ")");
+      trapFound = true;
+    }
+  }
+  if (!trapFound) {
+    System.out.println("No traps found.");
+    return -trapVal; // Score decrease for not finding any traps
+  }
+  return trapVal; // Score increase for finding at least one trap
 }
 }
