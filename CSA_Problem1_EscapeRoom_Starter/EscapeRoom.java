@@ -58,9 +58,13 @@ public class EscapeRoom
     int m = 60;    
     int score = 0;
 
-    String[] validCommands = { "right", "left", "up", "down", "r", "l", "u", "d",
+    String[] validCommands = {
+    "right", "left", "up", "down", "r", "l", "u", "d",
     "jump", "jr", "jumpleft", "jl", "jumpup", "ju", "jumpdown", "jd",
-    "pickup", "p", "quit", "q", "replay", "help", "?", "unstuck", "us", "springtrap" };
+    "pickup", "p", "quit", "q", "replay", "help", "?", "unstuck", "us",
+    "springtrap", "springtrap up", "springtrap down", "springtrap left", "springtrap right",
+    "su", "sd", "sl", "sr"};
+
   
     // set up game
     // ...existing code...
@@ -86,6 +90,7 @@ public class EscapeRoom
 
       if (cmd.equals("help") || cmd.equals("?")) {
         System.out.println("Commands: right, left, up, down, jump, pickup, replay, quit, help, stuck");
+        System.out.println("Commands: springtrap right/left/up/down");
         System.out.println("When done, reach the far right side of the board to end the game.");
         continue;
       }
@@ -111,12 +116,29 @@ public class EscapeRoom
         }
         continue;
       }
-      if (cmd.equals("springtrap")) {
-        score += game.springTrap(px, py);
-        System.out.println("score=" + score);
-        System.out.println("steps=" + game.getSteps());
-        
-      }    
+      if (cmd.startsWith("springtrap")) {
+          int dx = 0;
+          int dy = 0;
+
+          if (cmd.equals("springtrap up") || cmd.equals("su")) {
+              dy = -m;
+          } else if (cmd.equals("springtrap down") || cmd.equals("sd")) {
+              dy = m;
+          } else if (cmd.equals("springtrap left") || cmd.equals("sl")) {
+              dx = -m;
+          } else if (cmd.equals("springtrap right") || cmd.equals("sr")) {
+              dx = m;
+          } else if (!cmd.equals("springtrap")) {
+              System.out.println("Invalid springtrap direction. Try: springtrap up/down/left/right.");
+              continue;
+          }
+
+          score += game.springTrap(dx, dy);
+          System.out.println("score=" + score);
+          System.out.println("steps=" + game.getSteps());
+          continue;
+      }
+
       if (cmd.equals("right") || cmd.equals("d")) {
           score += game.movePlayer(m, 0); // move right by 60 pixels
           System.out.println("score=" + score);

@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.util.Random;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -27,6 +28,9 @@ public class GameGUI extends JComponent
   private static final int GRID_H = 5;
   private static final int START_LOC_X = 15;
   private static final int START_LOC_Y = 15;
+  private Image ghostImage;
+  private boolean showScare = false;
+
   
   // initial placement of player
   int x = START_LOC_X; 
@@ -51,11 +55,11 @@ public class GameGUI extends JComponent
 
   // scores, sometimes awarded as (negative) penalties
   private int prizeVal = 10;
-  private int trapVal = 1;
+  private int trapVal = 10;
   private int endVal = 10;
   private int offGridVal = 5; // penalty only
   private int hitWallVal = 5;  // penalty only
-  private int trapPenalty = 1; // penalty for stepping on a trap
+  private int trapPenalty = 5; // penalty for stepping on a trap
 
   // game frame
   private JFrame frame;
@@ -83,6 +87,11 @@ public class GameGUI extends JComponent
     } catch (Exception e) {
      System.err.println("Could not open file player.png");
     }
+    try {
+      ghostImage = ImageIO.read(new File("CSA_Problem1_EscapeRoom_Starter/ghost.png"));      
+    } catch (Exception e) {
+     System.err.println("Could not open file ghost.png");
+    }
     // save player location
     playerLoc = new Point(x,y);
 
@@ -100,6 +109,30 @@ public class GameGUI extends JComponent
     totalPrizes = 3;
     totalTraps = 5;
   }
+  public void playScareSound() {
+      try {
+          File soundFile = new File("CSA_Problem1_EscapeRoom_Starter/scream.wav");
+          AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+          Clip clip = AudioSystem.getClip();
+          clip.open(audioIn);
+          clip.start();
+
+          // Stop the clip after 3 seconds
+          new Thread(() -> {
+              try {
+                  Thread.sleep(3000); // 3000 milliseconds = 3 seconds
+                  clip.stop();        // Stop the sound
+                  clip.close();       // Release system resources
+              } catch (InterruptedException e) {
+                  e.printStackTrace();
+              }
+          }).start();
+
+      } catch (Exception e) {
+          System.err.println("Error playing sound: " + e.getMessage());
+      }
+  }
+
 
  /**
   * After a GameGUI object is created, this method adds the walls, prizes, and traps to the gameboard.
@@ -147,7 +180,7 @@ public int pickUpPrize(int px, int py) {
    * @param incry amount to move player in y direction
    * @return penalty score for hitting a wall or potentially going off the grid, 0 otherwise
    */
- public int movePlayer(int incrx, int incry)
+public int movePlayer(int incrx, int incry)
 {
     int newX = x + incrx;
     int newY = y + incry;
@@ -156,64 +189,54 @@ public int pickUpPrize(int px, int py) {
     playerSteps++;
 
     // check if off grid horizontally and vertically
-    if ( (newX < 0 || newX > WIDTH-SPACE_SIZE) || (newY < 0 || newY > HEIGHT-SPACE_SIZE) )
-    {
-      System.out.println ("OFF THE GRID!");
-      return -offGridVal;
+    if ((newX < 0 || newX > WIDTH - SPACE_SIZE) || (newY < 0 || newY > HEIGHT - SPACE_SIZE)) {
+        System.out.println("OFF THE GRID!");
+        return -offGridVal;
     }
 
     // determine if a wall is in the way
-    for (Rectangle r: walls)
-    {
-      // this rect. location
-      int startX =  (int)r.getX();
-      int endX  =  (int)r.getX() + (int)r.getWidth();
-      int startY =  (int)r.getY();
-      int endY = (int) r.getY() + (int)r.getHeight();
+    for (Rectangle r : walls) {
+        int startX = (int) r.getX();
+        int endX = startX + (int) r.getWidth();
+        int startY = (int) r.getY();
+        int endY = startY + (int) r.getHeight();
 
-      // (Note: the following if statements could be written as huge conditional but who wants to look at that!?)
-      // moving RIGHT, check to the right
-      if ((incrx > 0) && (x <= startX) && (startX <= newX) && (y >= startY) && (y <= endY))
-      {
-        System.out.println("A WALL IS IN THE WAY");
-        return -hitWallVal;
-      }
-      // moving LEFT, check to the left
-      else if ((incrx < 0) && (x >= startX) && (startX >= newX) && (y >= startY) && (y <= endY))
-      {
-        System.out.println("A WALL IS IN THE WAY");
-        return -hitWallVal;
-      }
-      // moving DOWN check below
-      else if ((incry > 0) && (y <= startY && startY <= newY && x >= startX && x <= endX))
-      {
-        System.out.println("A WALL IS IN THE WAY");
-        return -hitWallVal;
-      }
-      // moving UP check above
-      else if ((incry < 0) && (y >= startY) && (startY >= newY) && (x >= startX && x <= endX))
-      {
-        System.out.println("A WALL IS IN THE WAY");
-        return -hitWallVal;
-      }     
+        if ((incrx > 0) && (x <= startX) && (startX <= newX) && (y >= startY) && (y <= endY)) {
+            System.out.println("A WALL IS IN THE WAY");
+            return -hitWallVal;
+        } else if ((incrx < 0) && (x >= endX) && (endX >= newX) && (y >= startY) && (y <= endY)) {
+            System.out.println("A WALL IS IN THE WAY");
+            return -hitWallVal;
+        } else if ((incry > 0) && (y <= startY) && (startY <= newY) && (x >= startX) && (x <= endX)) {
+            System.out.println("A WALL IS IN THE WAY");
+            return -hitWallVal;
+        } else if ((incry < 0) && (y >= endY) && (endY >= newY) && (x >= startX) && (x <= endX)) {
+            System.out.println("A WALL IS IN THE WAY");
+            return -hitWallVal;
+        }
     }
 
-    // all is well, move player
-    x += incrx;
-    y += incry;
+    // no walls, no grid violation: move player
+    x = newX;
+    y = newY;
     playerLoc.setLocation(x, y);
 
-    // Check if player stepped on a trap
+    // check if player landed on trap
     for (Rectangle t : traps) {
-      if (t.getWidth() > 0 && t.contains(playerLoc.getX(), playerLoc.getY())) {
-        System.out.println("YOU LANDED ON A TRAP!");
-        return -trapPenalty;
-      }
+        if (t.getWidth() > 0 && t.contains(playerLoc.getX(), playerLoc.getY())) {
+            System.out.println("YOU LANDED ON A TRAP!");
+            triggerScare();     // show the scare image
+            playScareSound();   // play the scream
+            repaint();
+            return -trapPenalty;
+        }
     }
 
-    repaint();   
-    return 0;   
+    // no trap penalty
+    repaint();
+    return 0;
 }
+
 
   /**
    * Check the space adjacent to the player for a trap. The adjacent location is one space away from the player, 
@@ -436,6 +459,11 @@ public int pickUpPrize(int px, int py) {
     // draw player, saving its location
     g.drawImage(player, x, y, 40,40, null);
     playerLoc.setLocation(x,y);
+    // show scare image if triggered
+    if (showScare && ghostImage != null) {
+        g.drawImage(ghostImage, 0, 0, WIDTH, HEIGHT, null);
+}
+
   }
 
   /*------------------- private methods -------------------*/
@@ -556,4 +584,20 @@ public int pickUpPrize(int px, int py) {
   }
   return trapVal; // Score increase for finding at least one trap
 }
+  public void triggerScare() {
+      showScare = true;
+      repaint();
+
+      // Hide the image after 1 second (1000 milliseconds)
+      new Thread(() -> {
+          try {
+              Thread.sleep(3000);
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+          showScare = false;
+          repaint();
+      }).start();
+  }
+
 }
